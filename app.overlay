@@ -1,0 +1,36 @@
+/ {
+	chosen {
+		zephyr,console = &cdc_acm_uart0;
+        zephyr,shell-uart = &cdc_acm_uart0;
+	};
+};
+
+&zephyr_udc0 {
+	cdc_acm_uart0: cdc_acm_uart0 {
+		compatible = "zephyr,cdc-acm-uart";
+		label = "CDC_ACM_0";
+	};
+};
+
+&lpuart4 {
+         status="okay";
+         current-speed = <115200>;
+};
+
+&lpi2c1 {
+  status="okay";
+};
+
+&lpi2c2 {
+  status="okay";
+};
+
+&lpi2c3 {
+  status="okay";
+};
+
+
+&flexcan1 {
+        status="okay";
+        bus-speed=<250000>;
+};
