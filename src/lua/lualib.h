@@ -47,6 +47,9 @@ LUAMOD_API int (luaopen_package) (lua_State *L);
 #define LUA_ZEPHYRLIBNAME "z"
 LUAMOD_API int (luaopen_zephyr) (lua_State * L);
 
+#define LUA_TEENSYLIBNAME "teensy"
+LUAMOD_API int (luaopen_teensy) (lua_State * L);
+
 /* open all previous libraries */
 LUALIB_API void (luaL_openlibs) (lua_State *L);
 

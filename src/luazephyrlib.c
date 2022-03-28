@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <zephyr.h>
 #include <device.h>
 #include <drivers/gpio.h>
@@ -10,12 +11,14 @@
 #include <zsl/matrices.h>
 #include <zsl/interp.h>
 
+#include "drivers/pwm.h"
 #include "lua/lauxlib.h"
 #include "lua/lua.h"
 #include "zsl/interp.h"
 #include "zsl/vectors.h"
 #include "zsl/zsl.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 //////////////
@@ -268,6 +271,40 @@ static int lua_i2c_configure(lua_State * L) {
 // TODO i2c_write_read
 // TODO i2c_read
 // TODO i2c_write
+
+///////////
+/// PWM ///
+///////////
+
+static int lua_pwm_pin_set_cycles(lua_State * L) {
+  UD_GET_DEVICE(1);
+  int pwm = luaL_checkinteger(L, 2);
+  int period = luaL_checkinteger(L, 3);
+  int pulse = luaL_checkinteger(L, 4);
+  pwm_flags_t flags = luaL_optinteger(L, 5, 0);
+  pwm_pin_set_cycles(dev->device, pwm, period, pulse, flags);
+  return 0;
+}
+
+static int lua_pwm_pin_set_usec(lua_State * L) {
+  UD_GET_DEVICE(1);
+  int pwm = luaL_checkinteger(L, 2);
+  int period = luaL_checkinteger(L, 3);
+  int pulse = luaL_checkinteger(L, 4);
+  pwm_flags_t flags = luaL_optinteger(L, 5, 0);
+  pwm_pin_set_usec(dev->device, pwm, period, pulse, flags);
+  return 0;
+}
+
+static int lua_pwm_pin_set_nsec(lua_State * L) {
+  UD_GET_DEVICE(1);
+  int pwm = luaL_checkinteger(L, 2);
+  int period = luaL_checkinteger(L, 3);
+  int pulse = luaL_checkinteger(L, 4);
+  pwm_flags_t flags = luaL_optinteger(L, 5, 0);
+  pwm_pin_set_nsec(dev->device, pwm, period, pulse, flags);
+  return 0;
+}
 
 ////////////
 /// GPIO ///
@@ -1209,6 +1246,51 @@ static int lua_zsl_vec_print(lua_State * L) {
   return 0;
 }
 
+//////////////////
+/// RAW ACCESS ///
+//////////////////
+
+static int lua_peek(lua_State * L) {
+  int addr = luaL_checkinteger(L, 1);
+  int offset = luaL_optinteger(L, 2, 0);
+  int size = luaL_optinteger(L, 3, 4);
+  int ptr = addr + size * offset;
+  int ret = 0;
+
+  if (ptr & 0x3) {
+    // Unaligned memory access
+    memcpy(&ret, (void*) ptr, size);
+  } else {
+    switch (size) {
+      case 1: ret = *(uint8_t*)ptr; break;
+      case 2: ret = *(uint16_t*)ptr; break;
+      case 4: ret = *(int*)ptr; break;
+    }
+  }
+  lua_pushinteger(L, ret);
+  return 1;
+}
+
+static int lua_poke(lua_State * L) {
+  int addr = luaL_checkinteger(L, 1);
+  int val = luaL_checkinteger(L, 2);
+  int offset = luaL_optinteger(L, 3, 0);
+  int size = luaL_optinteger(L, 4, 4);
+  int ptr = addr + size * offset;
+  if (ptr & 0x3) {
+    // Unaligned memory access
+    memcpy((void*) ptr, &val, size);
+  } else {
+    switch (size) {
+      case 1: *(uint8_t*)ptr = val; break;
+      case 2: *(uint16_t*)ptr = val; break;
+      case 4: *(int*)ptr = val; break;
+    }
+  }
+
+  return 0;
+}
+
 //////////////////////////
 /// Library definition ///
 //////////////////////////
@@ -1244,6 +1326,10 @@ static const luaL_Reg zephyr_funcs[] = {
   // i2c
   /* {"i2c_get_config", lua_i2c_get_config}, */
   {"i2c_configure", lua_i2c_configure},
+  // PWM
+  {"pwm_pin_set_cycles", lua_pwm_pin_set_cycles},
+  {"pwm_pin_set_usec", lua_pwm_pin_set_usec},
+  {"pwm_pin_set_nsec", lua_pwm_pin_set_nsec},
   // gpio
   {"gpio_pin_interrupt_configure", lua_gpio_pin_interrupt_configure},
   {"gpio_pin_configure", lua_gpio_pin_configure},
@@ -1356,11 +1442,73 @@ static const luaL_Reg zephyr_funcs[] = {
   // TODO statistics
   // TODO colorimetry
   // TODO probability
+  // Raw memory access
+  {"peek", lua_peek},
+  {"poke", lua_poke},
   {NULL, NULL},
 };
 
 
 LUAMOD_API int luaopen_zephyr (lua_State *L) {
   luaL_newlib(L, zephyr_funcs);
+  return 1;
+}
+
+//////////////////
+/// TEENSY LIB ///
+/////////////////
+
+static int lua_pwm_get_pwmbase(lua_State * L) {
+  UD_GET_DEVICE(1);
+  const struct {
+    PWM_Type *base;
+    uint16_t prescaler;
+  } *  config = dev->device->config;
+  lua_pushinteger(L, (int)config->base);
+  return 1;
+}
+
+static int lua_pwm_get_prescaler(lua_State * L) {
+  UD_GET_DEVICE(1);
+  const struct {
+    PWM_Type *base;
+    uint16_t prescaler;
+  } *  config = dev->device->config;
+  lua_pushinteger(L, config->prescaler);
+  return 1;
+}
+
+static int lua_pwm_set(lua_State * L) {
+  UD_GET_DEVICE(1);
+  int pwm = luaL_checkinteger(L, 2);
+  int half = luaL_checkinteger(L, 3);
+  int full = luaL_checkinteger(L, 4);
+  int prescaler = luaL_optinteger(L, 5, 0);
+
+  uint8_t* ptr = * (void**) dev->device->config;
+  uint16_t* pwm_ptr = (uint16_t*) (ptr + (0x60 * pwm));
+  uint16_t * status_reg = (uint16_t*)(ptr + 0x188);
+
+  pwm_ptr[11] = half;
+  pwm_ptr[7] = full;
+  pwm_ptr[3] = 0xC04 | (prescaler & 0xF) << 4;
+
+  while(*status_reg & 0xf);
+  /* lua_pushinteger(L, *status_reg); */
+  *status_reg = 0x101;
+  return 0;
+
+}
+
+static const luaL_Reg teensy_funcs[] = {
+  {"pwm_get_pwmbase"   , lua_pwm_get_pwmbase},
+  {"pwm_get_prescaler" , lua_pwm_get_prescaler},
+  {"pwm_set" , lua_pwm_set},
+  {NULL, NULL},
+};
+
+
+LUAMOD_API int luaopen_teensy (lua_State *L) {
+  luaL_newlib(L, teensy_funcs);
   return 1;
 }

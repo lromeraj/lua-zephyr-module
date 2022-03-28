@@ -51,6 +51,7 @@ static const luaL_Reg loadedlibs[] = {
   /* {LUA_UTF8LIBNAME, luaopen_utf8}, */
   /* {LUA_DBLIBNAME, luaopen_debug}, */
   {LUA_ZEPHYRLIBNAME, luaopen_zephyr},
+  {LUA_TEENSYLIBNAME, luaopen_teensy},
   {NULL, NULL}
 };
 
