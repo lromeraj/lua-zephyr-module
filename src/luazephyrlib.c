@@ -10,7 +10,9 @@
 
 #include <zsl/matrices.h>
 #include <zsl/interp.h>
-
+#include "drivers/pwm.h"
+#include "fs/fs.h"
+#include "fs/fs_interface.h"
 #include "lua/lauxlib.h"
 #include "lua/lua.h"
 #include "storage/disk_access.h"
@@ -269,6 +271,102 @@ static int lua_disk_access_ioctl(lua_State * L) {
   int cmd = luaL_checkinteger(L, 2);
   UD_GET_BUFFER(3);
   lua_pushinteger(L, disk_access_ioctl(name, cmd, buf->ptr));
+  return 1;
+}
+
+///////////////////
+/// FILE SYSTEM ///
+///////////////////
+
+#define T_USERDATA_FILE 5
+#define UD_GET_FILE(ix) ud_file_t * fp = lua_touserdata(L, ix); \
+    luaL_argcheck(L, fp->type == T_USERDATA_FILE, ix, "`file' expected");
+typedef struct {
+    int type;
+    struct fs_file_t file;
+} ud_file_t;
+
+static int lua_fs_open(lua_State * L) {
+    const char * name = luaL_checkstring(L, 1);
+    // Flags:
+    /*
+     | Bit | 7 | 6 |      5 |      4 | 3 | 2 |     1 |    0 |
+     | Def |   |   | APPEND | CREATE |   |   | WRITE | READ |
+    */
+    int flags = luaL_optinteger(L, 2, 0);
+    ud_file_t * ptr = lua_newuserdata(L, sizeof(ud_file_t));
+    ptr->type = T_USERDATA_FILE;
+    fs_file_t_init(&ptr->file);
+    lua_pushinteger(L, fs_open(&ptr->file, name, flags));
+    return 2;
+}
+
+static int lua_fs_close(lua_State * L) {
+  UD_GET_FILE(1);
+  lua_pushinteger(L, fs_close(&fp->file));
+  return 1;
+}
+
+static int lua_fs_unlink(lua_State * L) {
+  const char * file = luaL_checkstring(L, 1);
+  lua_pushinteger(L, fs_unlink(file));
+  return 1;
+}
+
+static int lua_fs_rename(lua_State * L) {
+  const char * file = luaL_checkstring(L, 1);
+  const char * to = luaL_checkstring(L, 2);
+  lua_pushinteger(L, fs_rename(file, to));
+  return 1;
+}
+
+static int lua_fs_read(lua_State * L) {
+  UD_GET_FILE(1);
+  UD_GET_BUFFER(2);
+  size_t size;
+  if (lua_isinteger(L, 3)) {
+    // Read a specific size
+    size = luaL_checkinteger(L, 3);
+  } else {
+    size = buf->size;
+  }
+
+  lua_pushinteger(L, fs_read(&fp->file, buf->ptr, size));
+  return 1;
+}
+
+static int lua_fs_write(lua_State * L) {
+  UD_GET_FILE(1);
+  const void * ptr;
+  size_t size;
+
+  if (lua_isuserdata(L, 2)) {
+    UD_GET_BUFFER(2);
+    ptr = buf->ptr;
+    if (lua_isinteger(L, 3)) {
+      size = luaL_checkinteger(L, 3);
+    } else {
+      size = buf->size;
+    }
+  } else {
+    const char * str = luaL_checkstring(L, 2);
+    ptr = str;
+    size = strlen(str);
+  }
+
+  lua_pushinteger(L, fs_write(&fp->file, ptr, size));
+  return 1;
+}
+
+static int lua_fs_sync(lua_State * L) {
+  UD_GET_FILE(1);
+  lua_pushinteger(L, fs_sync(&fp->file));
+  return 1;
+}
+
+static int lua_fs_mkdir(lua_State * L) {
+  const char * file = luaL_checkstring(L, 1);
+  lua_pushinteger(L, fs_mkdir(file));
   return 1;
 }
 
@@ -1351,6 +1449,29 @@ static const luaL_Reg zephyr_funcs[] = {
   {"disk_access_init", lua_disk_access_init},
   {"disk_access_status", lua_disk_access_status},
   {"disk_access_ioctl", lua_disk_access_ioctl},
+  // File System
+  // TODO
+  {"fs_open", lua_fs_open},
+  {"fs_close", lua_fs_close},
+  {"fs_unlink", lua_fs_unlink},
+  {"fs_rename", lua_fs_rename},
+  {"fs_read", lua_fs_read},
+  {"fs_write", lua_fs_write},
+  /* {"fs_seek", lua_fs_seek}, */
+  /* {"fs_tell", lua_fs_tell}, */
+  /* {"fs_truncate", lua_fs_truncate}, */
+  {"fs_sync", lua_fs_sync},
+  {"fs_mkdir", lua_fs_mkdir},
+  /* {"fs_opendir", lua_fs_opendir}, */
+  /* {"fs_readdir", lua_fs_readdir}, */
+  /* {"fs_closedir", lua_fs_closedir}, */
+  /* {"fs_mount", lua_fs_mount}, */
+  /* {"fs_unmount", lua_fs_unmount}, */
+  /* {"fs_readmount", lua_fs_readmount}, */
+  /* {"fs_stat", lua_fs_stat}, */
+  /* {"fs_statvfs", lua_fs_statvfs}, */
+  /* {"fs_register", lua_fs_register}, */
+  /* {"fs_unregister", lua_fs_unregister}, */
   // i2c
   /* {"i2c_get_config", lua_i2c_get_config}, */
   {"i2c_configure", lua_i2c_configure},
