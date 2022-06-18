@@ -11,9 +11,9 @@
 #include <zsl/matrices.h>
 #include <zsl/interp.h>
 
-#include "drivers/pwm.h"
 #include "lua/lauxlib.h"
 #include "lua/lua.h"
+#include "storage/disk_access.h"
 #include "zsl/interp.h"
 #include "zsl/vectors.h"
 #include "zsl/zsl.h"
@@ -247,6 +247,30 @@ static int lua_flash_erase(lua_State * L) {
 /*     lua_pushinteger(L, flash_get_page_count(dev->device)); */
 /*     return 1; */
 /* } */
+
+///////////////////
+/// DISK ACCESS ///
+///////////////////
+
+static int lua_disk_access_init(lua_State * L) {
+  char * name = luaL_checkstring(L, 1);
+  lua_pushinteger(L, disk_access_init(name));
+  return 1;
+}
+
+static int lua_disk_access_status(lua_State * L) {
+  char * name = luaL_checkstring(L, 1);
+  lua_pushinteger(L, disk_access_status(name));
+  return 1;
+}
+
+static int lua_disk_access_ioctl(lua_State * L) {
+  char * name = luaL_checkstring(L, 1);
+  int cmd = luaL_checkinteger(L, 2);
+  UD_GET_BUFFER(3);
+  lua_pushinteger(L, disk_access_ioctl(name, cmd, buf->ptr));
+  return 1;
+}
 
 ///////////
 /// I2C ///
@@ -1323,6 +1347,10 @@ static const luaL_Reg zephyr_funcs[] = {
   {"flash_write", lua_flash_write},
   {"flash_erase", lua_flash_erase},
   /* {"flash_get_page_count", flash_get_page_count}, */
+  // Disk
+  {"disk_access_init", lua_disk_access_init},
+  {"disk_access_status", lua_disk_access_status},
+  {"disk_access_ioctl", lua_disk_access_ioctl},
   // i2c
   /* {"i2c_get_config", lua_i2c_get_config}, */
   {"i2c_configure", lua_i2c_configure},
