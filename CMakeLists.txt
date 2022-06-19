@@ -36,3 +36,7 @@ target_sources(app PRIVATE
   ./src/lua/lzio.c
 
   )
+
+# target_include_directories(app PRIVATE
+#   ../modules/hal/nxp/mcux/mcux-sdk/drivers/pwm/
+#   )

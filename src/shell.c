@@ -8,7 +8,6 @@
 #include "lua/lauxlib.h"
 #include "lua/lua.h"
 
-
 extern lua_State* L;
 
 void cmd_lua_loadfile(const struct shell * shell, size_t argc, char ** argv) {

@@ -34,17 +34,17 @@
 };
 
 &flexpwm2 {
-    status = "okay";
+    status = "disabled";
 };
 
 &flexpwm2_pwm0 {
-    status = "okay";
+    status = "disabled";
 };
 
 &flexpwm2_pwm2 {
-    status = "okay";
+    status = "disabled";
 };
 
 &flexpwm2_pwm3 {
-    status = "okay";
+    status = "disabled";
 };

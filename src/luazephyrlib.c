@@ -1607,51 +1607,30 @@ LUAMOD_API int luaopen_zephyr (lua_State *L) {
 /// TEENSY LIB ///
 /////////////////
 
-static int lua_pwm_get_pwmbase(lua_State * L) {
-  UD_GET_DEVICE(1);
-  const struct {
-    PWM_Type *base;
-    uint16_t prescaler;
-  } *  config = dev->device->config;
-  lua_pushinteger(L, (int)config->base);
-  return 1;
-}
-
-static int lua_pwm_get_prescaler(lua_State * L) {
-  UD_GET_DEVICE(1);
-  const struct {
-    PWM_Type *base;
-    uint16_t prescaler;
-  } *  config = dev->device->config;
-  lua_pushinteger(L, config->prescaler);
-  return 1;
-}
-
 static int lua_pwm_set(lua_State * L) {
-  UD_GET_DEVICE(1);
+  uint8_t* ptr = (uint8_t*) luaL_checkinteger(L, 1);
   int pwm = luaL_checkinteger(L, 2);
   int half = luaL_checkinteger(L, 3);
   int full = luaL_checkinteger(L, 4);
   int prescaler = luaL_optinteger(L, 5, 0);
 
-  uint8_t* ptr = * (void**) dev->device->config;
   uint16_t* pwm_ptr = (uint16_t*) (ptr + (0x60 * pwm));
   uint16_t * status_reg = (uint16_t*)(ptr + 0x188);
 
   pwm_ptr[11] = half;
   pwm_ptr[7] = full;
+  // Control register
   pwm_ptr[3] = 0xC04 | (prescaler & 0xF) << 4;
 
   while(*status_reg & 0xf);
   /* lua_pushinteger(L, *status_reg); */
   *status_reg = 0x101;
+
   return 0;
 
 }
 
 static const luaL_Reg teensy_funcs[] = {
-  {"pwm_get_pwmbase"   , lua_pwm_get_pwmbase},
-  {"pwm_get_prescaler" , lua_pwm_get_prescaler},
   {"pwm_set" , lua_pwm_set},
   {NULL, NULL},
 };
