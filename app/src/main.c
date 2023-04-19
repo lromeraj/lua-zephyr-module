@@ -1,5 +1,5 @@
-#include <zephyr/device.h>
 #include <zephyr/sys/printk.h>
+#include <zephyr/device.h>
 #include <zephyr/usb/usb_device.h>
 #include <zephyr/storage/disk_access.h>
 #include <zephyr/fs/fs.h>
@@ -39,31 +39,31 @@ static int l_sin (lua_State *L) {
 
 void main(void) {
 
-    /*
-    if (disk_access_init("USDHC_1") != 0) {
+  /*
+  if (disk_access_init("USDHC_1") != 0) {
 
-        printk("[SD] Storage init ERROR!\n");
+      printk("[SD] Storage init ERROR!\n");
 
-        int res = fs_mount(&mp);
+      int res = fs_mount(&mp);
 
-        if (res == FR_OK) {
-            printk("[SD] Mounted\n");
-        } else {
-            printk("[SD] Error mounting disk.\n");
-        }
-    }
-    */
+      if (res == FR_OK) {
+          printk("[SD] Mounted\n");
+      } else {
+          printk("[SD] Error mounting disk.\n");
+      }
+  }
+  */
+  printk("[INIT DONE]\n");
 
-    L = luaL_newstate();
-    luaL_openlibs( L );
-    
-    lua_pushcfunction( L, l_sin );
-    lua_setglobal( L, "mysin" );
+  L = luaL_newstate();
+  luaL_openlibs( L );
+  
+  lua_pushcfunction( L, l_sin );
+  lua_setglobal( L, "mysin" );
 
-    luaL_dostring( L, lua_main );
+  luaL_dostring( L, lua_main );
 
-    fflush(stdout);
+  // fflush(stdout);
 
-    printk("[INIT DONE]\n");
 }
 
