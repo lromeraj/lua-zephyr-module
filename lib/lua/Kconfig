@@ -1,0 +1,4 @@
+menu "LUA"
+	config LUA
+		bool "Build LUA library"
+endmenu
