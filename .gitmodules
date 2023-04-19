@@ -1,0 +1,4 @@
+[submodule "app/iridium"]
+	path = app/iridium
+	url = git@glab.lromeraj.net:ucm/miot/tfm/iridium-sbd-library.git
+	branch = main
