@@ -1,17 +1,24 @@
 print( "Example of Iridium SBD application using Lua" );
 
-local result = iridium.isbd_setup()
+local result = isbd.setup()
 
 if result == 0 then
-  print( "Iridium SBD serviec OK" );
+  print( "Iridium SBD service setup OK" );
+  
+  -- Sends a message with a given maximum of retries
+  isbd.sendMessage( "MIoT", 10 );
+
 else
-  print( "Iridium SBD service failed" );
+  print( "Iridium SBD service setup failed" );
 end
 
 while true do
-  local evt, data = iridium.isbd_wait_event( 1000 )
+  -- Waits until a event is captured or timeout is triggered
+  -- This function can be non blocking if called with a timeout of 0
+  local evt, data = isbd.waitEvent( 1000 )
+
   if evt ~= nil then
-    print( string.format( "Event (%03d) received -> %s", evt, tostring( data ) ) )
+    print( string.format( "Event (%03d) received", evt ) )
   end
 end
 

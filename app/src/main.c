@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-
 #include "lauxlib.h"
 #include "lualib.h"
 
@@ -16,9 +15,7 @@
 
 #include "luac.h"
 
-/* change this to any other UART peripheral if desired */
-// #define UART_MASTER_DEVICE_NODE DT_NODELABEL(uart0)
-#define UART_DTE_DEVICE_NODE DT_NODELABEL( uart3 )
+#define UART_DTE_DEVICE_NODE DT_NODELABEL( uart1 )
 
 static struct device *dte_device =
   (struct device*)DEVICE_DT_GET( UART_DTE_DEVICE_NODE );
@@ -29,23 +26,14 @@ static struct device *dte_device =
 
 static isu_dte_t g_isu_dte;
 
-/*
-static FATFS fat_fs;
-static struct fs_mount_t mp = {
-    .type = FS_FATFS,
-    .fs_data = &fat_fs,
-    .mnt_point = "/SD:",
-};
-*/
-
-// typedef int (*lua_CFunction) (lua_State *L);
-
 static int l_isbd_setup( lua_State *L );
 static int l_isbd_wait_event( lua_State *L );
+static int l_isbd_send_msg( lua_State *L );
 
-static const struct luaL_Reg l_iridium[] = {
-  {"isbd_setup", l_isbd_setup },
-  {"isbd_wait_event", l_isbd_wait_event },
+static const struct luaL_Reg l_isbd[] = {
+  {"setup", l_isbd_setup },
+  {"waitEvent", l_isbd_wait_event },
+  {"sendMessage", l_isbd_send_msg },
   {NULL, NULL}  /* sentinel */
 };
 
@@ -54,8 +42,8 @@ static uint8_t tx_buf[ 512 ];
 
 static int l_isbd_setup( lua_State *L ) {
 
-  // double d = luaL_checknumber(L, 1);
-  
+  // TODO: allow configuration from Lua
+
   struct uart_config uart_config;
 
 	uart_config_get( dte_device, &uart_config );
@@ -75,7 +63,7 @@ static int l_isbd_setup( lua_State *L ) {
 
   lua_pushnumber( L, isu_dte_setup( &g_isu_dte, &isu_dte_config ) );
 
-  // TODO: allow configuration from Lua
+
   isbd_config_t isbd_config = {
     .dte            = &g_isu_dte,
     .priority       = 0,
@@ -88,6 +76,16 @@ static int l_isbd_setup( lua_State *L ) {
   return 1;
 }
 
+static int l_isbd_send_msg( lua_State *L ) {
+
+  size_t msg_len;
+  const char *msg = luaL_checklstring( L, 1, &msg_len );
+  lua_Number retries = luaL_checknumber( L, 2 );
+
+  isbd_send_mo_msg( msg, (uint16_t)msg_len, (uint8_t)retries );
+  
+  return 0;
+}
 static int l_isbd_wait_event( lua_State *L ) {
 
   isbd_evt_t evt;
@@ -99,7 +97,7 @@ static int l_isbd_wait_event( lua_State *L ) {
     
     if ( evt.id == ISBD_EVT_MT ) {
       lua_createtable( L, 0, 1 );
-      lua_pushstring( L, "data" );
+      lua_pushstring( L, "payload" );
       lua_pushlstring( L, (const char*)evt.mt.data, evt.mt.len );
       lua_settable( L, -3 );
     } else {
@@ -109,7 +107,6 @@ static int l_isbd_wait_event( lua_State *L ) {
     isbd_destroy_evt( &evt );
 
     return 2;
-
   }
 
   return 0;
@@ -119,17 +116,17 @@ static int l_isbd_wait_event( lua_State *L ) {
 int luaopen_iridium( lua_State *L ) {
 
   lua_newtable( L );
-  luaL_setfuncs( L, l_iridium, 0 );
+  luaL_setfuncs( L, l_isbd, 0 );
 
   // lua_pushvalue( L, -1 ); // pluck these lines out if they offend you
 
-  lua_setglobal( L, "iridium" );
+  lua_setglobal( L, "isbd" );
 
   // luaL_openlib( L, "iridium", l_iridium, 0 );
   return 1;
 }
 
-void main(void) {
+int main(void) {
 
   static lua_State * L;
 
@@ -139,17 +136,20 @@ void main(void) {
   
   // lua_pushcfunction( L, l_sin );
   // lua_setglobal( L, "mysin" );
-
   int error = 
     luaL_loadbuffer( L, g_lua_main, sizeof( g_lua_main ), "main" ) 
     || lua_pcall( L, 0, 0, 0 );
 
   if ( error ) {
+    
+    // lua_tostring() returns and appends 
+    // at the same time the value in the stack
     fprintf( stderr, "%s", lua_tostring( L, -1 ) );
-    lua_pop( L, 1 );  /* pop error message from the stack */
+    lua_pop( L, 1 ); 
   }
 
   lua_close( L );
-
+  
+  return 0;
 }
 

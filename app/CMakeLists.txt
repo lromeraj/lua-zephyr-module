@@ -1,9 +1,14 @@
 cmake_minimum_required(VERSION 3.20.0)
 
-# Get absolute (real path) to the module base folder
+# ┌─────────────────────────────────────────────┐
+# │             Zephyr dependencies             │
+# └─────────────────────────────────────────────┘
+
+# Get absolute (real path) to the Lua module base folder
 get_filename_component(
   LUA_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../ REALPATH )
 
+# Get absolute (real path) to the Iiridium module base folder
 get_filename_component(
   IRIDIUM_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/iridium/ REALPATH )
 
@@ -11,32 +16,37 @@ get_filename_component(
 list( APPEND ZEPHYR_EXTRA_MODULES ${LUA_MODULE_PATH} )
 list( APPEND ZEPHYR_EXTRA_MODULES ${IRIDIUM_MODULE_PATH} )
 
+if(DEFINED QEMU_TTY_PATH)
+  list(
+    APPEND 
+    ENV{QEMU_EXTRA_FLAGS}
+    "-chardev serial,id=con1,path=${QEMU_TTY_PATH} -serial chardev:con1" )
+endif()
+
+
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+project( lua_zepphyr_app )
 
-project(lua_zepphyr_app)
-
-target_sources(app PRIVATE
+target_sources( app PRIVATE
   ./src/main.c
 )
 
 target_link_libraries( app PRIVATE lua iridium )
 
-# include( ${ZEPHYR_BASE}/samples/net/common/common.cmake )
-
-# add_custom_command( 
-#   OUTPUT lua/main.o
-#   COMMAND "luac" -o lua/main.o -- lua/main.lua
-#   DEPENDS "lua/main.lua"
-#   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-# )
-
-# lua_compile_file( lua/main.o out )
-
-generate_inc_file_for_target(
-	app
-	lua/main.lua
-	${PROJECT_BINARY_DIR}/zephyr/include/generated/lua.main.inc
+# This is a simple wrapper which compiles lua files
+# and generates a header file with the binary compiled file
+# The output header name will be, for example:
+# /my/path/main.lua -> main.lua.h
+luacc(
+  app
+  ${CMAKE_CURRENT_SOURCE_DIR}/lua/main.lua
 )
+
+# generate_inc_file_for_target(
+# 	app
+# 	${CMAKE_CURRENT_BINARY_DIR}/main.lua.o
+# 	${PROJECT_BINARY_DIR}/zephyr/include/generated/lua.main.inc
+# )
 
 # target_include_directories(app PRIVATE
 #   ../modules/hal/nxp/mcux/mcux-sdk/drivers/pwm/
