@@ -36,20 +36,10 @@ target_sources( app PRIVATE
 target_link_libraries( app PRIVATE lua iridium )
 
 # This is a simple wrapper which compiles lua files
-# and generates a header file with the binary compiled file
+# and generates a header file with the binary content
 # The output header name will be, for example:
 # /my/path/main.lua -> main.lua.h
 lua_generate_inc_file_for_target(
   app
   ${CMAKE_CURRENT_SOURCE_DIR}/lua/main.lua
 )
-
-# generate_inc_file_for_target(
-# 	app
-# 	${CMAKE_CURRENT_BINARY_DIR}/main.lua.o
-# 	${PROJECT_BINARY_DIR}/zephyr/include/generated/lua.main.inc
-# )
-
-# target_include_directories(app PRIVATE
-#   ../modules/hal/nxp/mcux/mcux-sdk/drivers/pwm/
-#   )
