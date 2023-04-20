@@ -16,13 +16,15 @@ get_filename_component(
 list( APPEND ZEPHYR_EXTRA_MODULES ${LUA_MODULE_PATH} )
 list( APPEND ZEPHYR_EXTRA_MODULES ${IRIDIUM_MODULE_PATH} )
 
+if( "${DEBUG}" STREQUAL "yes" )
+	list( APPEND OVERLAY_CONFIG "dbg.conf" )
+endif()
+
 if(DEFINED QEMU_TTY_PATH)
-  list(
-    APPEND 
+  set(
     ENV{QEMU_EXTRA_FLAGS}
     "-chardev serial,id=con1,path=${QEMU_TTY_PATH} -serial chardev:con1" )
 endif()
-
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project( lua_zepphyr_app )
@@ -37,7 +39,7 @@ target_link_libraries( app PRIVATE lua iridium )
 # and generates a header file with the binary compiled file
 # The output header name will be, for example:
 # /my/path/main.lua -> main.lua.h
-luacc(
+lua_generate_inc_file_for_target(
   app
   ${CMAKE_CURRENT_SOURCE_DIR}/lua/main.lua
 )

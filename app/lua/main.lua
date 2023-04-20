@@ -4,9 +4,9 @@ local result = isbd.setup()
 
 if result == 0 then
   print( "Iridium SBD service setup OK" );
-  
+
   -- Sends a message with a given maximum of retries
-  isbd.sendMessage( "MIoT", 10 );
+  isbd.sendMessage( "This message was sent from Lua!", 10 );
 
 else
   print( "Iridium SBD service setup failed" );
