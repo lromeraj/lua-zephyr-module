@@ -15,6 +15,8 @@
 
 #include "luac.h"
 
+LOG_MODULE_REGISTER( app );
+
 #define UART_DTE_DEVICE_NODE DT_NODELABEL( uart1 )
 
 static struct device *dte_device =
@@ -141,10 +143,9 @@ int main(void) {
     || lua_pcall( L, 0, 0, 0 );
 
   if ( error ) {
-    
     // lua_tostring() returns and appends 
     // at the same time the value in the stack
-    fprintf( stderr, "%s", lua_tostring( L, -1 ) );
+    LOG_ERR( "%s", lua_tostring( L, -1 ) );
     lua_pop( L, 1 ); 
   }
 

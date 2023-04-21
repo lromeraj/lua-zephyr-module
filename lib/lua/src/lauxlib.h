@@ -255,20 +255,28 @@ typedef struct luaL_Stream {
 ** ===================================================================
 */
 
+#include <zephyr/sys/printk.h>
+
 /* print a string */
 #if !defined(lua_writestring)
-#define lua_writestring(s,l)   fwrite((s), sizeof(char), (l), stdout)
+//#define lua_writestring(s,l)   fwrite((s), sizeof(char), (l), stdout)
+// TODO: how this could affect perfomance ?
+#define lua_writestring(s,l)   printk("%s", (s)) 
+
 #endif
 
 /* print a newline and flush the output */
 #if !defined(lua_writeline)
-#define lua_writeline()        (lua_writestring("\n", 1), fflush(stdout))
+// #define lua_writeline()        (lua_writestring("\n", 1), fflush(stdout))
+#define lua_writeline()        (lua_writestring("\n", 1))
 #endif
 
 /* print an error message */
 #if !defined(lua_writestringerror)
+// #define lua_writestringerror(s,p)
+//         (fprintf(stderr, (s), (p)), fflush(stderr))
 #define lua_writestringerror(s,p) \
-        (fprintf(stderr, (s), (p)), fflush(stderr))
+      printk((s), (p))
 #endif
 
 /* }================================================================== */

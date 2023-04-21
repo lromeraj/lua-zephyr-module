@@ -17,8 +17,6 @@ If you are in the first situation, you'll be limited to the emulator capabilitie
 
 For those who currently just have an _Iridium SBD 9602/9603_ transceiver but don't have a physical prototyping board, `Qemu` will become really helpful which is fully integrated within Zephyr.
 
-If you have all the necessary hardware and very probably a board 
-
 # Building
 Actually, the build process for Lua files is quite simple and does not use any type of filesystem, this will change with the time, but by the moment Zephyr toolchains has some limitations where the standard `libc` is not fully implemented and will require probably to modify even more the Lua source code.
 
