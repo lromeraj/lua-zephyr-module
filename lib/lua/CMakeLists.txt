@@ -16,7 +16,7 @@ set(
 # LIST( APPEND CMAKE_PROGRAM_PATH  ${LUAC_PATH} )
 
 add_custom_command( OUTPUT ${LUAC_PATH}
-                    COMMAND make all > /dev/tty
+                    COMMAND make all
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
