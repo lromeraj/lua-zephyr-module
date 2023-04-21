@@ -6,6 +6,7 @@ if(CONFIG_LUA)
   zephyr_library_sources( src/onelua.c )
   zephyr_include_directories( src/ )
   zephyr_library_link_libraries( zephyr )
+	zephyr_library_compile_options( -DZEPHYR_RTOS )
 endif()
 
 set(

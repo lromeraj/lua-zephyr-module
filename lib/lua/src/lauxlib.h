@@ -255,28 +255,41 @@ typedef struct luaL_Stream {
 ** ===================================================================
 */
 
-#include <zephyr/sys/printk.h>
+
+#ifdef ZEPHYR_RTOS
+  #include <zephyr/sys/printk.h>
+#endif
 
 /* print a string */
 #if !defined(lua_writestring)
-//#define lua_writestring(s,l)   fwrite((s), sizeof(char), (l), stdout)
-// TODO: how this could affect perfomance ?
-#define lua_writestring(s,l)   printk("%s", (s)) 
+
+  #ifdef ZEPHYR_RTOS
+    // TODO: how this could affect perfomance ?
+    #define lua_writestring(s,l)   printk("%s", (s)) 
+  #else
+    #define lua_writestring(s,l)   fwrite((s), sizeof(char), (l), stdout)
+  #endif
 
 #endif
 
 /* print a newline and flush the output */
 #if !defined(lua_writeline)
-// #define lua_writeline()        (lua_writestring("\n", 1), fflush(stdout))
-#define lua_writeline()        (lua_writestring("\n", 1))
+  #ifdef ZEPHYR_RTOS
+    #define lua_writeline()        (lua_writestring("\n", 1))
+  #else
+    #define lua_writeline()        (lua_writestring("\n", 1), fflush(stdout))
+  #endif
 #endif
 
 /* print an error message */
 #if !defined(lua_writestringerror)
-// #define lua_writestringerror(s,p)
-//         (fprintf(stderr, (s), (p)), fflush(stderr))
-#define lua_writestringerror(s,p) \
-      printk((s), (p))
+  #ifdef ZEPHYR_RTOS
+    #define lua_writestringerror(s,p) \
+          printk((s), (p))
+  #else
+    #define lua_writestringerror(s,p) \
+             (fprintf(stderr, (s), (p)), fflush(stderr))
+  #endif
 #endif
 
 /* }================================================================== */
