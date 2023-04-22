@@ -13,12 +13,29 @@ else
 end
 
 while true do
+
   -- Waits until a event is captured or timeout is triggered
   -- This function can be non blocking if called with a timeout of 0
-  local evt, data = isbd.waitEvent( 1000 )
+  local evt, evtData = isbd.waitEvent( 1000 )
 
   if evt ~= nil then
-    print( string.format( "Event (%03d) received", evt ) )
+    
+    print( string.format( "Event (0x%02X) received", evt ) )
+    
+    if evt == 0x01 then
+      print( string.format( "MT message sent, sn=%d", evtData.sn ) )
+    elseif evt == 0x02 then
+      print( string.format( "MO message sent, sn=%d", evtData.sn ) )
+    elseif evt == 0x03 then
+      print( string.format( "Ring alert" ) )
+    elseif evt == 0x04 then
+      print( string.format( "Service avaivality: %d", evtData.svca ) )
+    elseif evt == 0x05 then
+      print( string.format( "Signal quality: %d", evtData.sigq ) )
+    elseif evt == 0x0F then
+      print( string.format( "Error (%03d)", evtData.err ) )
+    end
+
   end
 end
 

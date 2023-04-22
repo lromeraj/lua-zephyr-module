@@ -95,15 +95,73 @@ static int l_isbd_wait_event( lua_State *L ) {
 
   if ( isbd_wait_evt( &evt, (uint32_t)timeout_ms ) ) {
     
-    lua_pushnumber( L, (lua_Number)evt.id );
-    
     if ( evt.id == ISBD_EVT_MT ) {
-      lua_createtable( L, 0, 1 );
+
+      lua_pushnumber( L, 0x01 );
+      
+      lua_createtable( L, 0, 2 );
+
+      // payload
       lua_pushstring( L, "payload" );
       lua_pushlstring( L, (const char*)evt.mt.data, evt.mt.len );
       lua_settable( L, -3 );
+
+      // sn
+      lua_pushstring( L, "sn" );
+      lua_pushnumber( L, evt.mt.sn );
+      lua_settable( L, -3 );
+
+    } else if ( evt.id == ISBD_EVT_MO ) {
+      
+      lua_pushnumber( L, 0x02 );
+
+      lua_createtable( L, 0, 2 );
+
+      lua_pushstring( L, "payload" );
+      lua_pushlstring( L, (const char*)evt.mo.data, evt.mo.len );
+      lua_settable( L, -3 );
+      
+      lua_pushstring( L, "sn" );
+      lua_pushnumber( L, evt.mo.sn );
+      lua_settable( L, -3 );
+
+    } else if ( evt.id == ISBD_EVT_RING ) {
+      
+      lua_pushnumber( L, 0x03 );
+      lua_pushnil( L );
+
+    } else if ( evt.id == ISBD_EVT_SVCA ) {
+      
+      lua_pushnumber( L, 0x04 );
+
+      lua_createtable( L, 0, 1 );
+
+      lua_pushstring( L, "svca" );
+      lua_pushnumber( L, evt.svca );
+      lua_settable( L, -3 );
+    
+    } else if ( evt.id == ISBD_EVT_SIGQ ) {
+
+      lua_pushnumber( L, 0x05 );
+
+      lua_createtable( L, 0, 1 );
+
+      lua_pushstring( L, "sigq" );
+      lua_pushnumber( L, evt.sigq );
+      lua_settable( L, -3 );
+
+    } else if ( evt.id == ISBD_EVT_ERR ) {
+
+      lua_pushnumber( L, 0x0F );
+      
+      lua_createtable( L, 0, 1 );
+
+      lua_pushstring( L, "err" );
+      lua_pushnumber( L, evt.err );
+      lua_settable( L, -3 );
+
     } else {
-      lua_newtable( L );
+      return 0;
     }
 
     isbd_destroy_evt( &evt );
