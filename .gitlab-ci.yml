@@ -15,7 +15,7 @@ build:
     - cd app/
     - west build -b qemu_cortex_a9
   tags:
-    - isbd-library # TODO: rename this runner to zephyr
+    - zephyr
   only:
     - dev
     - main
