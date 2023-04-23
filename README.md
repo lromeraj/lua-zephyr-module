@@ -88,7 +88,7 @@ You'll probably see some errors in the output, this is because the emulated devi
 
 > **NOTE**: use `CTRL+A` and then `C` to interact with the Qemu virtual machine.
 
-In order to achieve this, we have first to emulate the device itself, and for that we have to build the emulator, this process is explained in the corresponding [Iridium SBD emulator repository](https://glab.lromeraj.net/ucm/miot/tfm/iridium-sbd-emulator).
+In order to solve this, we have first to emulate the device itself, and for that we have to build the emulator, this process is explained in the corresponding [Iridium SBD emulator repository](https://glab.lromeraj.net/ucm/miot/tfm/iridium-sbd-emulator).
 
 Now you should have access to the main programs of the emulator: `960x.js` and `gss.js`.
 
@@ -113,7 +113,7 @@ Now we have to start the Qemu virtual machine but indicating the TTY port:
 west build -t run -- -DQEMU_TTY_PATH=/tmp/qemu
 ```
 
-This should give you an output like:
+This should give an output like:
 ``` bash
 *** Booting Zephyr OS build zephyr-v3.3.0-2906-gc4565ad5b652 ***
 Example of Iridium SBD application using Lua
