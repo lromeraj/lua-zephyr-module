@@ -45,7 +45,7 @@ To request a build, is as simple as executing the Zephyr `west` tool in the foll
 west build -b <BOARD>
 ```
 If you have a physical board try to build the source for it, but I can't warranty you a success during the build process, 
-it is a very premature repository, so things can wrong easily.
+it is a very premature repository, so things can go wrong easily.
 
 In case you don't have a physical board, you'll have to set a Qemu board as target, the recommended Qemu board is `qemu_cortex_a9` which has plenty of hardware resources by default (many more than necessary). So the command should be:
 ``` bash
