@@ -25,7 +25,7 @@ git submodule update --init
 ```
 
 # Building
-Actually, the build process for Lua files is quite simple and does not use any type of filesystem, this will change over time, but by the moment Zephyr toolchains has some limitations where the standard `libc` is not fully implemented and will require probably to modify even more the Lua source code.
+Actually, the build process for Lua files is quite simple and does not use any type of filesystem, this will change over time. By the moment Zephyr's toolchains have some limitations where the standard `libc` is not fully implemented and will require probably to modify even more Lua's source code.
 
 The Lua files are compiled using `luac` and embedded directly to the firmware, you can take a look to the `CMakeLists.txt` inside the Lua folder `lib/lua/` which implements a tiny (very very tiny) build system for Lua. There you'll find a function named `lua_generate_inc_file_for_target` which has been implemented in order to simplify the building process. If you take a look inside the `CMakeLists.txt` inside the `app/` directory, you can see how it's used:
 ``` bash
