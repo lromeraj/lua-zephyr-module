@@ -41,6 +41,8 @@ I suppose that you already have Zephyr framework installed on your computer and 
 
 To request a build, is as simple as executing the Zephyr `west` tool in the following way:
 
+> **NOTE**: remember to execute the following commands inside the application directory `app/`.
+
 ``` bash
 west build -b <BOARD>
 ```
