@@ -77,7 +77,7 @@ This will be explained in more detail in the following section.
 
 The different possibilities while running the application are shown below. 
 
-## Full hardware execution
+## Full software execution
 
 If you are using a qemu emulated board, execute the following command to run the application:
 ``` bash
