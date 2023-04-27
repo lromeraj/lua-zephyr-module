@@ -12,15 +12,14 @@
 #include "lualib.h"
 
 #include "isbd.h"
-
 #include "luac.h"
+
+#include "shared.h"
 
 LOG_MODULE_REGISTER( app );
 
-#define UART_DTE_DEVICE_NODE DT_NODELABEL( uart1 )
 
-static struct device *dte_device =
-  (struct device*)DEVICE_DT_GET( UART_DTE_DEVICE_NODE );
+static struct device *uart_960x_device = UART_960X_DEVICE;
 
 // For reference
 // https://www.lua.org/pil/24.1.html
@@ -31,11 +30,13 @@ static isu_dte_t g_isu_dte;
 static int l_isbd_setup( lua_State *L );
 static int l_isbd_wait_event( lua_State *L );
 static int l_isbd_send_msg( lua_State *L );
+static int l_isbd_request_session( lua_State *L );
 
 static const struct luaL_Reg l_isbd[] = {
   {"setup", l_isbd_setup },
   {"waitEvent", l_isbd_wait_event },
   {"sendMessage", l_isbd_send_msg },
+  {"requestSession", l_isbd_request_session },
   {NULL, NULL}  /* sentinel */
 };
 
@@ -48,23 +49,22 @@ static int l_isbd_setup( lua_State *L ) {
 
   struct uart_config uart_config;
 
-	uart_config_get( dte_device, &uart_config );
+	uart_config_get( uart_960x_device, &uart_config );
 	uart_config.baudrate = 19200;
-	uart_configure( dte_device, &uart_config );
+	uart_configure( uart_960x_device, &uart_config );
 
   isu_dte_config_t isu_dte_config = {
     .at_uart = {
       .echo = false,
       .verbose = true,
-      // .zuart = ZUART_CONF_POLL( dte_device ),
-      .zuart = ZUART_CONF_IRQ( dte_device, rx_buf, sizeof( rx_buf ), tx_buf, sizeof( tx_buf ) ),
-      // .zuart = ZUART_CONF_MIX_RX_IRQ_TX_POLL( dte_device, rx_buf, sizeof( rx_buf ) ),
-      // .zuart = ZUART_CONF_MIX_RX_POLL_TX_IRQ( dte_device, tx_buf, sizeof( tx_buf ) ),
+      // .zuart = ZUART_CONF_POLL( uart_960x_device ),
+      .zuart = ZUART_CONF_IRQ( uart_960x_device, rx_buf, sizeof( rx_buf ), tx_buf, sizeof( tx_buf ) ),
+      // .zuart = ZUART_CONF_MIX_RX_IRQ_TX_POLL( uart_960x_device, rx_buf, sizeof( rx_buf ) ),
+      // .zuart = ZUART_CONF_MIX_RX_POLL_TX_IRQ( uart_960x_device, tx_buf, sizeof( tx_buf ) ),
     }
   };
 
   lua_pushnumber( L, isu_dte_setup( &g_isu_dte, &isu_dte_config ) );
-
 
   isbd_config_t isbd_config = {
     .dte            = &g_isu_dte,
@@ -88,6 +88,20 @@ static int l_isbd_send_msg( lua_State *L ) {
   
   return 0;
 }
+
+static int l_isbd_request_session( lua_State *L ) {
+
+  luaL_checktype( L, 1, LUA_TTABLE );
+  lua_getfield( L, 1, "alert" );
+
+  bool alert = lua_toboolean( L, -1 );
+
+  isbd_request_session( alert );
+  
+  return 0;
+}
+
+
 static int l_isbd_wait_event( lua_State *L ) {
 
   isbd_evt_t evt;
@@ -191,6 +205,7 @@ int main(void) {
   static lua_State * L;
 
   L = luaL_newstate();
+
   luaL_openlibs( L );
   luaopen_iridium( L );
   

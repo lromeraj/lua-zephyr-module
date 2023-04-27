@@ -20,20 +20,22 @@ while true do
 
   if evt ~= nil then
     
-    print( string.format( "Event (0x%02X) received", evt ) )
-    
     if evt == 0x01 then
-      print( string.format( "MT message sent, sn=%d", evtData.sn ) )
+      print( string.format( "MT message received, sn=%d, size=%d", 
+        evtData.sn, #evtData.payload ) )
     elseif evt == 0x02 then
       print( string.format( "MO message sent, sn=%d", evtData.sn ) )
     elseif evt == 0x03 then
       print( string.format( "Ring alert" ) )
+      isbd.initSession({ alert = false })
     elseif evt == 0x04 then
       print( string.format( "Service avaivality: %d", evtData.svca ) )
     elseif evt == 0x05 then
       print( string.format( "Signal quality: %d", evtData.sigq ) )
     elseif evt == 0x0F then
       print( string.format( "Error (%03d)", evtData.err ) )
+    else
+      print( string.format( "Event (0x%02X) received", evt ) )
     end
 
   end
