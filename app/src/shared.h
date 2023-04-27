@@ -1,5 +1,5 @@
 #define UART_960X_NODE       DT_ALIAS( 960x )
-#define UART_960X_NODE_DEF   DT_NODELABEL( uart0 )
+#define UART_960X_NODE_DEF   DT_NODELABEL( uart1 )
 
 #if DT_NODE_HAS_STATUS( UART_960X_NODE, okay )
 

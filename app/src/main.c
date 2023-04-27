@@ -18,7 +18,6 @@
 
 LOG_MODULE_REGISTER( app );
 
-
 static struct device *uart_960x_device = UART_960X_DEVICE;
 
 // For reference
@@ -71,6 +70,7 @@ static int l_isbd_setup( lua_State *L ) {
     .priority       = 0,
     .mo_queue_len   = 4,
     .evt_queue_len  = 8,
+    .sigq_threshold = 2,
   };
 
   isbd_setup( &isbd_config );

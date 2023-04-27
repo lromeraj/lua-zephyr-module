@@ -27,7 +27,7 @@ while true do
       print( string.format( "MO message sent, sn=%d", evtData.sn ) )
     elseif evt == 0x03 then
       print( string.format( "Ring alert" ) )
-      isbd.initSession({ alert = false })
+      isbd.requestSession({ alert = false })
     elseif evt == 0x04 then
       print( string.format( "Service avaivality: %d", evtData.svca ) )
     elseif evt == 0x05 then
