@@ -172,12 +172,11 @@ This app and additional libraries have been tested using a custom prototype show
 
 <div align="center">
 
-  <img src="./img/proto-2.jpg" width="90%" />
+  <img src="./img/proto-2.jpg" width="50%" />
 
   <img src="./img/proto-6.jpg" width="40%" />
   <img src="./img/proto-7.jpg" width="40%" />
-  <img src="./img/proto-5.jpg" width="40%" />
-  <img src="./img/proto-3.jpg" width="40%" />
+  <img src="./img/proto-3.jpg" width="50%" />
 
 </div>
 
