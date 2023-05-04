@@ -158,5 +158,27 @@ Now start the app with Qemu pointing to the previously created virtual serial po
 ``` bash
 west build -b qemu_cortex_a9 -t run -- -DQEMU_TTY_PATH=/tmp/qemu
 ```
+___
 
-## Full hardware execution (TOOO)
+In case you are in the opposite situation and you want to connect you physical board with the emulator, you have to crate again a virtual serial port in order to connect your board with the emulated modem:
+``` bash 
+socat -dd /dev/ttyUSB0,b19200,raw,echo=0 pty,link=/tmp/960x,raw,echo=0
+```
+
+## ~~Full hardware execution (TODO)~~
+
+# Test prototype
+This app and additional libraries have been tested using a custom prototype showed below:
+
+<div align="center">
+
+  <img src="./img/proto-2.jpg" width="90%" />
+
+  <img src="./img/proto-6.jpg" width="40%" />
+  <img src="./img/proto-7.jpg" width="40%" />
+  <img src="./img/proto-5.jpg" width="40%" />
+  <img src="./img/proto-3.jpg" width="40%" />
+
+</div>
+
+
