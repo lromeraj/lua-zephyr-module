@@ -160,7 +160,7 @@ west build -b qemu_cortex_a9 -t run -- -DQEMU_TTY_PATH=/tmp/qemu
 ```
 ___
 
-In case you are in the opposite situation and you want to connect you physical board with the emulator, you have to crate again a virtual serial port in order to connect your board with the emulated modem:
+In case you are in the opposite situation and you want to connect your physical board with the emulator, you have to crate again a virtual serial port in order to connect your board with the emulated modem:
 ``` bash 
 socat -dd /dev/ttyUSB0,b19200,raw,echo=0 pty,link=/tmp/960x,raw,echo=0
 ```
@@ -168,9 +168,15 @@ socat -dd /dev/ttyUSB0,b19200,raw,echo=0 pty,link=/tmp/960x,raw,echo=0
 ## ~~Full hardware execution (TODO)~~
 
 # Test prototype
-This app and additional libraries have been tested using a custom prototype showed below:
+
+This app and additional libraries have been tested in a real environment using a physical _Iridium SBD 9602 transceiver_ connected to a physical _ESP32-C3-DevKitC-02_ board, here we show some images of this prototype:
 
 <div align="center">
+
+  <img src="./img/isbd9602_asmb_draw.png" width="70%" />
+  <img src="./img/isbd9602b_draw.png" width="49%" />
+  <img src="./img/isbd9602bt_draw.png" width="49%" />
+
 
   <img src="./img/proto-2.jpg" width="50%" />
 
@@ -178,6 +184,10 @@ This app and additional libraries have been tested using a custom prototype show
   <img src="./img/proto-7.jpg" width="40%" />
   <img src="./img/proto-3.jpg" width="50%" />
 
+
 </div>
+
+
+
 
 
