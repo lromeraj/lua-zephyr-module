@@ -169,22 +169,17 @@ socat -dd /dev/ttyUSB0,b19200,raw,echo=0 pty,link=/tmp/960x,raw,echo=0
 
 # Test prototype
 
-This app and additional libraries have been tested in a real environment using a physical _Iridium SBD 9602 transceiver_ connected to a physical _ESP32-C3-DevKitC-02_ board, here we show some images of this prototype:
+This app and additional libraries have been tested in a real environment using a physical _Iridium SBD 9602 transceiver_ connected to a physical _ESP32-C3-DevKitC-02_ board, some pictures of this prototype are attached below:
 
 <div align="center">
+  <img src="./img/proto-2.jpg" width="49%" />
+  <img src="./img/proto-6.jpg" width="49%" />
+  <img src="./img/proto-7.jpg" width="49%" />
+  <img src="./img/proto-3.jpg" width="49%" />
 
-  <img src="./img/isbd9602_asmb_draw.png" width="70%" />
   <img src="./img/isbd9602b_draw.png" width="49%" />
   <img src="./img/isbd9602bt_draw.png" width="49%" />
-
-
-  <img src="./img/proto-2.jpg" width="50%" />
-
-  <img src="./img/proto-6.jpg" width="40%" />
-  <img src="./img/proto-7.jpg" width="40%" />
-  <img src="./img/proto-3.jpg" width="50%" />
-
-
+  <img src="./img/isbd9602_asmb_draw.png" width="70%" />
 </div>
 
 
