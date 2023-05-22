@@ -1,0 +1,3 @@
+[submodule "app/iridium"]
+	path = app/iridium
+	url = https://github.com/lromeraj/isbd-zephyr-module.git
