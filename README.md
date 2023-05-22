@@ -19,7 +19,12 @@ For those who currently just have an _Iridium SBD 9602/9603_ transceiver but don
 
 # Cloning the repository
 
-This repository depends on additional repositories which are included as _GIT_ submodules, so when cloning use the flag `--recursive` to avoid some additional steps, if you have already cloned it without this flag, use the following command:
+This repository depends on additional repositories which are included as _GIT_ submodules, so when cloning use the flag `--recursive` to avoid some additional steps:
+``` bash
+git clone https://github.com/lromeraj/lua-zephyr-module.git --recursive
+```
+
+If you have already cloned it without this flag, use the following command:
 ``` bash
 git submodule update --init
 ```
