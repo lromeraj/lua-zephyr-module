@@ -2,7 +2,7 @@
 This repository provides an example of how the [Lua language](https://www.lua.org/about.html) can be integrated in a project using the [Zephyr embedded operating system](https://www.zephyrproject.org/). Also, this repository is structured as a Zephyr module in order to facilitate the integration. 
 
 # Application example
-Under the folder `app/` you can see an example on how to use `Lua` in a Zephyr project, this application uses at the same time another module located inside `app/iridium/` which implements some useful libraries in order to communicate with _Iridium SBD 960X_ like transceivers and perform satellite communications using the Iridium constellation, as you could think, this type of hardware and services are far from being cheap, but I am glad to tell you that you will be able to test this service for free without the need of having the hardware physically or any additional service bills, this is possible thanks to the recently implemented [Iridium SBD emulator](https://glab.lromeraj.net/ucm/miot/tfm/iridium-sbd-emulator) which will allow you to emulate the modem itself and the Iridium GSS.
+Under the folder `app/` you can see an example on how to use `Lua` in a Zephyr project, this application uses at the same time another module located inside `app/iridium/` which implements some useful libraries in order to communicate with _Iridium SBD 960X_ like transceivers and perform satellite communications using the Iridium constellation, as you could think, this type of hardware and services are far from being cheap, but I am glad to tell you that you will be able to test this service for free without the need of having the hardware physically or any additional service bills, this is possible thanks to the recently implemented [Iridium SBD emulator](https://github.com/lromeraj/isbd-emu) which will allow you to emulate the modem itself and the Iridium GSS.
 
 > **NOTE**: this emulator is currently under development and some functionalities are not available, which implies different limitations, but it is currently functional and you can test basic app logic while using Iridium SBD transceivers.
 
@@ -37,7 +37,7 @@ lua_generate_inc_file_for_target(
 
 Currently there is only one Lua script file to be compiled, but this build system will be improved over time, the good point about this is that it's fully integrated with the Zephyr build system and any modification in the Lua source code will be treated as a modification in a regular `.c` or `.h` file and the final binary firmware will be reassembled. The Lua source files are located under `app/lua/` folder.
 
-I suppose that you already have Zephyr framework installed on your computer and ready to be used, if not, you can take a look to [this wiki section](https://glab.lromeraj.net/ucm/miot/tfm/iridium-sbd-library/-/wikis/Home/Getting-started) as it shows a slightly different manner of loading Zephyr framework tools.  
+I suppose that you already have Zephyr framework installed on your computer and ready to be used, if not, you can take a look to [this wiki section](https://github.com/lromeraj/isbd-zephyr-module/wiki/Getting-started) as it shows a slightly different manner of loading Zephyr framework tools.  
 
 To request a build, is as simple as executing the Zephyr `west` tool in the following way:
 
@@ -49,9 +49,9 @@ west build -b <BOARD>
 If you have a physical board try to build the source for it, but I can't warranty you a success during the build process, 
 it is a very premature repository, so things can go wrong easily.
 
-In case you don't have a physical board, you'll have to set a Qemu board as target, the recommended Qemu board is `qemu_cortex_a9` which has plenty of hardware resources by default (many more than necessary). So the command should be:
+In case you don't have a physical board, you'll have to set a Qemu board as target, the recommended Qemu board is `qemu_x86` which has plenty of hardware resources by default (many more than necessary). So the command should be:
 ``` bash
-west build -b qemu_cortex_a9
+west build -b qemu_x86
 ```
 
 This should build all the sources and generate the final binary firmware. You can use some extra variables in order to modify slightly the building process:
@@ -60,17 +60,17 @@ This should build all the sources and generate the final binary firmware. You ca
 
 For example to build with debugging enabled, simply use:
 ``` bash
-west build -b qemu_cortex_a9 -- -DDEBUG=yes
+west build -b qemu_x86 -- -DDEBUG=yes
 ```
 
 To disable debugging:
 ``` bash
-west build -b qemu_cortex_a9 -- -DDEBUG=no
+west build -b qemu_x86 -- -DDEBUG=no
 ```
 
 If you want to specify the TTY port for Qemu, use:
 ``` bash
-west build -b qemu_cortex_a9 -- -DQEMU_TTY_PATH=/tmp/qemu
+west build -b qemu_x86 -- -DQEMU_TTY_PATH=/tmp/qemu
 ```
 
 This will be explained in more detail in the following section.
@@ -90,7 +90,7 @@ You'll probably see some errors in the output, this is because the emulated devi
 
 > **NOTE**: use `CTRL+A` and then `C` to interact with the Qemu virtual machine.
 
-In order to solve this, we have first to emulate the device itself, and for that we have to build the emulator, this process is explained in the corresponding [Iridium SBD emulator repository](https://glab.lromeraj.net/ucm/miot/tfm/iridium-sbd-emulator).
+In order to solve this, we have first to emulate the device itself, and for that we have to build the emulator, this process is explained in the corresponding [Iridium SBD emulator repository](https://github.com/lromeraj/isbd-emu).
 
 Now you should have access to the main programs of the emulator: `960x.js` and `gss.js`.
 
@@ -133,9 +133,9 @@ You can specify the MO (_Mobile Originated_) transport to be used:
 node gss.js --mo-tcp-host my.domain.example.com --mo-tcp-port 10800 -vvv
 ```
 
-This will emulate _MO_ Direct IP messages to the destination over TCP, see [the following repository](https://glab.lromeraj.net/ucm/miot/tfm/iridium-sbd-server) if you want to run your own server instance.
+This will emulate _MO_ Direct IP messages to the destination over TCP, see [the following repository](https://github.com/lromeraj/isbd-server) if you want to run your own server instance.
 
-> **NOTE**: you can use SMTP transport simultaneously with TCP, but this information is not detailed here, please see the [official repository of the emulator](https://glab.lromeraj.net/ucm/miot/tfm/iridium-sbd-emulator).
+> **NOTE**: you can use SMTP transport simultaneously with TCP, but this information is not detailed here, please see the [official repository of the emulator](https://github.com/lromeraj/isbd-emu).
 
 If you are still running the Qemu virtual machine you will see how the output shows things like:
 ``` txt
@@ -156,7 +156,7 @@ socat -dd pty,link=/tmp/qemu,raw,echo=0 /dev/ttyUSB0,b19200,raw,echo=0
 
 Now start the app with Qemu pointing to the previously created virtual serial port:
 ``` bash
-west build -b qemu_cortex_a9 -t run -- -DQEMU_TTY_PATH=/tmp/qemu
+west build -b qemu_x86 -t run -- -DQEMU_TTY_PATH=/tmp/qemu
 ```
 ___
 
@@ -181,8 +181,3 @@ This app and additional libraries have been tested in a real environment using a
   <img src="./img/isbd9602bt_draw.png" width="49%" />
   <img src="./img/isbd9602_asmb_draw.png" width="70%" />
 </div>
-
-
-
-
-

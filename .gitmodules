@@ -1,4 +1,4 @@
 [submodule "app/iridium"]
 	path = app/iridium
-	url = ../iridium-sbd-library.git
+	url = https://github.com/lromeraj/isbd-zephyr-module
 	branch = main
