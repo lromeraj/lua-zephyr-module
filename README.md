@@ -177,7 +177,6 @@ socat -dd /dev/ttyUSB0,b19200,raw,echo=0 pty,link=/tmp/960x,raw,echo=0
 This app and additional libraries have been tested in a real environment using a physical _Iridium SBD 9602 transceiver_ connected to a physical _ESP32-C3-DevKitC-02_ board, some pictures of this prototype are attached below:
 
 <div align="center">
-  <img src="./img/proto-2.jpg" width="49%" />
   <img src="./img/proto-6.jpg" width="49%" />
   <img src="./img/proto-7.jpg" width="49%" />
   <img src="./img/proto-3.jpg" width="49%" />
