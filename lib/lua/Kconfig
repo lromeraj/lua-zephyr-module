@@ -1,4 +1,9 @@
 menu "LUA"
 	config LUA
 		bool "Build LUA library"
+
+	config LUA_PRINTK
+		bool "Use Zephyr printk() for writing strings"
+		default y
+		depends on LUA
 endmenu

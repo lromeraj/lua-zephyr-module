@@ -255,15 +255,14 @@ typedef struct luaL_Stream {
 ** ===================================================================
 */
 
-
-#ifdef ZEPHYR_RTOS
+#ifdef CONFIG_LUA_PRINTK
   #include <zephyr/sys/printk.h>
 #endif
 
 /* print a string */
 #if !defined(lua_writestring)
 
-  #ifdef ZEPHYR_RTOS
+  #ifdef CONFIG_LUA_PRINTK
     // TODO: how this could affect perfomance ?
     #define lua_writestring(s,l)   printk("%s", (s)) 
   #else
