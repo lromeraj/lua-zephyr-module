@@ -1,0 +1,101 @@
+config LUA
+	bool "Build LUA library"
+	#depends on PICOLIBC || NEWLIB_LIBC
+	#depends on FILE_SYSTEM
+	select REQUIRES_FULL_LIBC
+	select REQUIRES_FLOAT_PRINTF
+	help
+		Support for Lua library
+
+if LUA
+
+config LUA_STRIP_DEBUG_INFORMATION
+	bool "Strip debug information"
+	default n
+	help
+		This option enables the use of the -s flag when invoking the Lua
+		compiler, which strips debug information before writing the output
+		file. This can significantly reduce the size of large chunks, but
+		if errors occur when executing those chunks, the resulting error
+		messages may provide less detail than usual.
+
+config LUA_READABLE
+	bool "File existence check before opening"
+	depends on POSIX_FILE_SYSTEM
+	default n
+	help
+		Enable this option to use the POSIX stat() function to check if a file
+		exists before attempting to open it in Lua scripts.
+
+		This pre-check prevents errors related to non-existent files, avoiding
+		unnecessary error messages in the log when trying to open files that do
+		not exist.
+
+config LUA_PRINTK
+	bool "Use Zephyr printk() for writing strings"
+	default n
+	depends on PRINTK
+	help
+		This option overrides lua_writestring() and lua_writestringerror()
+		and uses printk() instead of write(). This should avoid conflicts while using
+		Zephyr logging modules.
+
+config LUA_ROOT
+	string "Root for Lua files"
+	default "/lfs"
+	help
+		This option allows to change the root for the default path for lua
+		files used by the default (LUA_PATH_DEFAULT). If LUA_PATH_DEFAULT is
+		not defined the default search path for lua modules will be
+		LUA_ROOT/lua/, while C Lua modules will be searched in
+		LUA_ROOT/lib/lua/.
+
+config LUA_CUSTOM_PATH_DEFAULT
+	bool "Set custom value for LUA_PATH_DEFAULT"
+	default n
+	help
+		Enable this if you want to select a default value for the search
+		path of lua modules.
+
+config LUA_PATH_DEFAULT
+	string "Defines the default search path for Lua script files" if LUA_CUSTOM_PATH_DEFAULT
+	help
+		This option allows to specify the default search path for lua
+		modules. It should be a string containing a sequence of templates
+		separated by semicolons, in which ? represents the name of the module.
+
+config LUA_CUSTOM_CPATH_DEFAULT
+	bool "Set custom value for LUA_CPATH_DEFAULT"
+	default n
+	help
+		Enable this if you want to select a default value for the search
+		path of Lua modules.
+
+config LUA_CPATH_DEFAULT
+	string "Default search path for C libraries" if LUA_CUSTOM_CPATH_DEFAULT
+	help
+		This option allows to specify the default search path for Lua
+		modules stored as dynamic libraries. It should be a string
+		containing a sequence of templates separated by semicolons, in which
+		? represents the name of the module.
+
+config LUA_GLOCK
+	bool "Global interpreter lock for the Lua virtual machine"
+	default y
+	help
+		This option includes a global interpreter lock for the Lua virtual
+		machine, that allows multithreaded access to the same Lua state. You
+		still must synchronize access to shared tables. Have a look at:
+		http://lua-users.org/wiki/ThreadsTutorial
+
+config LUA_64BITS_NUMBERS
+	bool "Use 64 bits for numbers"
+	default n
+	help
+		If set, Lua is configured to use double for real numbers and long
+		long for integers. Otherwise float is used for reals and int for
+		integers.
+
+rsource "socket/Kconfig"
+
+endif # LUA

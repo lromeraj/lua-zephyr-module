@@ -1,0 +1,12 @@
+manifest:
+  projects:
+    - name: zephyr
+      url: https://github.com/zephyrproject-rtos/zephyr
+      revision: main
+      path: zephyr
+      clone-depth: 1
+      west-commands: scripts/west-commands.yml
+
+  self:
+    path: modules/lua
+    west-commands: scripts/west-commands.yml

@@ -1,0 +1,16 @@
+west-commands:
+  - file: scripts/lua.py
+    commands:
+      - name: lua
+        class: Lua
+        help: Lua interpreter
+  - file: scripts/luac.py
+    commands:
+      - name: luac
+        class: Luac
+        help: Lua compiler
+  - file: scripts/luab.py
+    commands:
+      - name: luab
+        class: Luab
+        help: Lua self building tool

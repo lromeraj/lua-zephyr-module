@@ -1,0 +1,11 @@
+menuconfig LUA_SOCKET
+	bool "Build socket library"
+	default n
+	depends on LUA
+	depends on NETWORKING
+	depends on POSIX_NETWORKING
+	depends on NET_TCP && NET_UDP
+	depends on NET_SOCKETS
+
+	help
+		This option adds the LuaSocket library to the Zephyr build
